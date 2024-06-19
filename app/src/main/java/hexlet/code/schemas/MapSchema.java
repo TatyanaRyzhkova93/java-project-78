@@ -1,42 +1,38 @@
 package hexlet.code.schemas;
 
+import java.util.HashMap;
 import java.util.Map;
+import java.util.Objects;
+import java.util.function.Predicate;
 
 public class MapSchema extends BaseSchema<Map> {
-    private int sizeOf;
-    private boolean isSizeOf;
+    private Map<String, BaseSchema<String>> schemas = new HashMap<>();
     private boolean isShape;
-    private Map<String, BaseSchema<String>> schemas;
-    @Override
     public MapSchema required() {
-        return (MapSchema) super.required();
+        Predicate<Map> empty = Objects::isNull;
+        checks.put("required", empty);
+        return this;
     }
 
     public MapSchema sizeof(int n) {
-        this.sizeOf = n;
-        this.isSizeOf = true;
+        Predicate<Map> size = value -> (value == null || value.size() != n);
+        checks.put("sizeof", size);
         return this;
-    }
-    @Override
-    public boolean isValid(Map value) {
-        if (isReq && value == null) {
-            return false;
-        }
-        if (isSizeOf && (value == null || value.size() != sizeOf)) {
-            return false;
-        }
-        if (isShape) {
-            long c = schemas.entrySet().stream()
-                    .filter(entry -> entry.getValue().isValid(entry.getKey()))
-                    .count();
-            return c == value.size();
-        }
-        return true;
     }
 
-    public MapSchema shape(Map<String, BaseSchema<String>> sch) {
-        this.schemas = sch;
+    public MapSchema shape(Map<String, BaseSchema<String>> schs) {
+        schemas = schs;
         this.isShape = true;
         return this;
+    }
+
+    public final boolean isValid(Map<String, String> value) {
+        if (isShape) {
+            for (Map.Entry<String, String> entry : value.entrySet()) {
+                BaseSchema<String> schema = schemas.get(entry.getKey());
+                schema.isValid(entry.getValue());
+            }
+        }
+        return super.isValid(value);
     }
 }
