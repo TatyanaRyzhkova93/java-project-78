@@ -26,11 +26,14 @@ public class MapSchema extends BaseSchema<Map> {
         return this;
     }
 
+
     public final boolean isValid(Map<String, String> value) {
         if (isShape) {
             for (Map.Entry<String, String> entry : value.entrySet()) {
                 BaseSchema<String> schema = schemas.get(entry.getKey());
-                schema.isValid(entry.getValue());
+                if (!schema.isValid(entry.getValue())){
+                    return false;
+                }
             }
         }
         return super.isValid(value);

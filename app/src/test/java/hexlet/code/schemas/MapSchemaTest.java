@@ -49,15 +49,18 @@ public class MapSchemaTest {
         human1.put("firstName", "John");
         human1.put("lastName", "Smith");
         schema.isValid(human1); // true
+        assertTrue(schema.isValid(human1));
 
         Map<String, String> human2 = new HashMap<>();
         human2.put("firstName", "John");
         human2.put("lastName", null);
         schema.isValid(human2); // false
+        assertFalse(schema.isValid(human2));
 
         Map<String, String> human3 = new HashMap<>();
         human3.put("firstName", "Anna");
         human3.put("lastName", "B");
         schema.isValid(human3); // false
+        assertFalse(schema.isValid(human3));
     }
 }
